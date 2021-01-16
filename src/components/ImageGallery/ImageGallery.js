@@ -23,6 +23,7 @@ export default class ImageGallery extends Component {
     images: [],
     status: Status.IDLE,
     page: 1,
+    error: null,
     showModal: false,
     largeImageSrc: '',
   };
@@ -42,6 +43,11 @@ export default class ImageGallery extends Component {
             status: Status.RESOLVED,
           }));
           window.scrollTo({ top: 0 });
+          if (res.total === 0) {
+            return Promise.reject(
+              new Error(`По вашему запросу ${searchQuery} ничего не найдено`),
+            );
+          }
         })
         .catch(error => this.setState({ error, status: Status.REJECTED }));
     }
@@ -83,7 +89,7 @@ export default class ImageGallery extends Component {
   };
 
   render() {
-    const { images, status, showModal, largeImageSrc } = this.state;
+    const { images, status, showModal, largeImageSrc, error } = this.state;
     return (
       <>
         <ul className="ImageGallery">
@@ -97,12 +103,17 @@ export default class ImageGallery extends Component {
             />
           ))}
         </ul>
+
+        {status === 'rejected' && <div>{error.message}</div>}
+
         {status === 'pending' && (
           <Loader type="ThreeDots" color="#00BFFF" height={100} width={100} />
         )}
+
         {(images.length > 0 || status === 'resolved') && (
           <Button onClick={this.handleClickButton} />
         )}
+
         {showModal && (
           <Modal image={largeImageSrc} onClose={this.handleToggleModal} />
         )}
