@@ -42,7 +42,9 @@ export default class ImageGallery extends Component {
             images: res.hits,
             status: Status.RESOLVED,
           }));
+
           window.scrollTo({ top: 0 });
+
           if (res.total === 0) {
             return Promise.reject(
               new Error(`По вашему запросу ${searchQuery} ничего не найдено`),
@@ -62,19 +64,18 @@ export default class ImageGallery extends Component {
             status: Status.RESOLVED,
           }));
         })
-        .catch(error => this.setState({ error, status: Status.REJECTED }));
+        .catch(error => this.setState({ error, status: Status.REJECTED }))
+        .finally(() => {
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth',
+          });
+        });
     }
   }
 
   handleClickButton = () => {
     this.setState(prev => ({ page: prev.page + 1 }));
-
-    setTimeout(() => {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: 'smooth',
-      });
-    }, 600);
   };
 
   handleClickImage = src => {
